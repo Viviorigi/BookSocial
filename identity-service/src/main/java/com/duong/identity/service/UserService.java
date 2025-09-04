@@ -11,6 +11,7 @@ import com.duong.identity.mapper.UserMapper;
 import com.duong.identity.repository.RoleRepository;
 import com.duong.identity.repository.UserRepository;
 import com.duong.identity.repository.httpclient.ProfileClient;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,9 +27,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +39,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     ProfileClient profileClient;
     ProfileMapper profileMapper;
+    KafkaTemplate<String, String> kafkaTemplate;
 
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
@@ -59,6 +58,9 @@ public class UserService {
         profileRequest.setUserId(user.getId());
 
         profileClient.createProfile(profileRequest);
+
+        // Public message to  kafka
+        kafkaTemplate.send("onboard-successful", "Welcome our new member "+ user.getUsername());
 
         return userMapper.toUserResponse(user);
     }
