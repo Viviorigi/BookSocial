@@ -11,6 +11,7 @@ import com.duong.identity.mapper.UserMapper;
 import com.duong.identity.repository.RoleRepository;
 import com.duong.identity.repository.UserRepository;
 import com.duong.identity.repository.httpclient.ProfileClient;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,7 +53,13 @@ public class UserService {
 
         user.setRoles(roles);
 
-        user = userRepository.save(user);
+        user.setEmailVerified(false);
+
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException exception){
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
 
         var profileRequest = profileMapper.toProfileCreationRequest(request);
         profileRequest.setUserId(user.getId());
