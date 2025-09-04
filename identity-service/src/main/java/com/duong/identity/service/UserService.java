@@ -3,6 +3,7 @@ package com.duong.identity.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.duong.event.dto.NotificationEvent;
 import com.duong.identity.constant.PredefinedRole;
 import com.duong.identity.exception.AppException;
 import com.duong.identity.exception.ErrorCode;
@@ -40,7 +41,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     ProfileClient profileClient;
     ProfileMapper profileMapper;
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
@@ -66,8 +67,14 @@ public class UserService {
 
         profileClient.createProfile(profileRequest);
 
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to booksocial")
+                .body("Hello, "+    request.getUsername())
+                .build();
         // Public message to  kafka
-        kafkaTemplate.send("onboard-successful", "Welcome our new member "+ user.getUsername());
+        kafkaTemplate.send("notification-delivery", notificationEvent);
 
         return userMapper.toUserResponse(user);
     }
