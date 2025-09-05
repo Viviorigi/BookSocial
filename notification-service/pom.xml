@@ -8,7 +8,7 @@
 		<version>3.2.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.devteria</groupId>
+	<groupId>com.duong</groupId>
 	<artifactId>notification-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>notification-service</name>
@@ -139,10 +139,10 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>com/devteria/profile/dto/**</exclude>
-						<exclude>com/devteria/profile/entity/**</exclude>
-						<exclude>com/devteria/profile/mapper/**</exclude>
-						<exclude>com/devteria/profile/configuration/**</exclude>
+						<exclude>com/duong/profile/dto/**</exclude>
+						<exclude>com/duong/profile/entity/**</exclude>
+						<exclude>com/duong/profile/mapper/**</exclude>
+						<exclude>com/duong/profile/configuration/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
