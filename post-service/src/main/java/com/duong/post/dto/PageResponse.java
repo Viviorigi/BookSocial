@@ -1,4 +1,4 @@
-package com.duong.post.dto.response;
+package com.duong.post.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageResponse<T> {
+    int currentPage;
     int totalPages;
     int pageSize;
     long totalElements;

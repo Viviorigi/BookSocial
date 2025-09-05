@@ -111,7 +111,6 @@ function Scene({ children }) {
           }}
         >
           <Toolbar />
-
           <Box
             sx={{
               display: 'flex',

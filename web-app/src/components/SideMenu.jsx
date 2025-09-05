@@ -16,7 +16,7 @@ function SideMenu() {
     <>
       <Toolbar />
       <List>
-        <ListItem key={"home"} disablePadding>      
+        <ListItem key={"home"} disablePadding>
           <ListItemButton component={Link} to="/">
             <ListItemIcon>
               <HomeIcon />

@@ -106,7 +106,6 @@ export default function Header() {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
       <MenuItem onClick={handleLogout}>Log Out</MenuItem>
     </Menu>
@@ -172,6 +171,7 @@ export default function Header() {
         color="inherit"
         aria-label="open drawer"
         sx={{ mr: 2 }}
+        onClick={() => (window.location.href = "/")}
       >
         <Box
           component={"img"}

@@ -10,7 +10,7 @@ export const getMyPosts = async (page) => {
       },
       params: {
         page: page,
-        size: 10,
+        size: 5,
       },
     });
 };

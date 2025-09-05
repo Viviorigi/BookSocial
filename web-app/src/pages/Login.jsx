@@ -28,7 +28,7 @@ export default function Login() {
 
   const handleClick = () => {
     alert(
-      
+      "Please refer to Oauth2 series for this implemetation guidelines. https://www.youtube.com/playlist?list=PL2xsxmVse9IbweCh6QKqZhousfEWabSeq"
     );
   };
 
@@ -93,7 +93,7 @@ export default function Login() {
         >
           <CardContent>
             <Typography variant="h5" component="h1" gutterBottom>
-              Welcome to ViviorApp
+              Welcome to Devtetia
             </Typography>
             <Box
               component="form"
@@ -139,7 +139,7 @@ export default function Login() {
             </Box>
 
             <Box display="flex" flexDirection="column" width="100%" gap="25px">
-              {/* <Button
+              <Button
                 type="button"
                 variant="contained"
                 color="secondary"
@@ -150,7 +150,7 @@ export default function Login() {
               >
                 <GoogleIcon />
                 Continue with Google
-              </Button> */}
+              </Button>
               <Button
                 type="submit"
                 variant="contained"
