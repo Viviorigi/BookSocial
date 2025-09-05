@@ -111,7 +111,16 @@ function Scene({ children }) {
           }}
         >
           <Toolbar />
-          {children}
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%'
+            }}
+          >
+            {children}
+          </Box>
         </Box>
       </Box>
     </Box>

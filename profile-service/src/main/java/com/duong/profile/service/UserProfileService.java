@@ -3,12 +3,15 @@ package com.duong.profile.service;
 import com.duong.profile.dto.request.ProfileCreationRequest;
 import com.duong.profile.dto.response.UserProfileResponse;
 import com.duong.profile.entity.UserProfile;
+import com.duong.profile.exception.AppException;
+import com.duong.profile.exception.ErrorCode;
 import com.duong.profile.mapper.UserProfileMapper;
 import com.duong.profile.repository.UserProfileRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,5 +40,15 @@ public class UserProfileService {
         var profiles = userProfileRepository.findAll();
 
         return profiles.stream().map(userProfileMapper::toUserProfileResponse).toList();
+    }
+
+    public UserProfileResponse getMyProfile() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        var profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userProfileMapper.toUserProfileResponse(profile);
     }
 }

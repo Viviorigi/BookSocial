@@ -73,6 +73,11 @@ export default function Header() {
     handleMobileMenuClose();
   };
 
+  const handleOpenProfile = () => {
+    setAnchorEl(null);
+    window.location.href = "/profile";
+  };
+
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
@@ -100,6 +105,7 @@ export default function Header() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
+      <MenuItem onClick={handleOpenProfile}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
       <MenuItem onClick={handleLogout}>Log Out</MenuItem>

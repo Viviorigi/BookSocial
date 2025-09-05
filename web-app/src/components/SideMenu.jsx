@@ -9,14 +9,15 @@ import Toolbar from "@mui/material/Toolbar";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import GroupsIcon from "@mui/icons-material/Groups";
+import { Link } from "react-router-dom";
 
 function SideMenu() {
   return (
     <>
       <Toolbar />
       <List>
-        <ListItem key={"home"} disablePadding>
-          <ListItemButton>
+        <ListItem key={"home"} disablePadding>      
+          <ListItemButton component={Link} to="/">
             <ListItemIcon>
               <HomeIcon />
             </ListItemIcon>
