@@ -23,11 +23,6 @@ public class DateTimeFormatter {
         strategyMap.put(Long.MAX_VALUE,this::formatInDate);
     }
 
-    private String formatInSeconds(Instant instant){
-        long elapseSeconds = ChronoUnit.SECONDS.between(instant, Instant.now());
-        return elapseSeconds + " seconds";
-    }
-
     public String format(Instant instant) {
         long elapseSeconds = ChronoUnit.SECONDS.between(instant, Instant.now());
 
@@ -39,14 +34,19 @@ public class DateTimeFormatter {
          return strategy.getValue().apply(instant);
     }
 
+    private String formatInSeconds(Instant instant){
+        long elapseSeconds = ChronoUnit.SECONDS.between(instant, Instant.now());
+        return String.format("%s second(s) ago", elapseSeconds);
+    }
+
     private String formatInMinutes(Instant instant){
-        long elaspedMinutes = ChronoUnit.MINUTES.between(instant, Instant.now());
-        return elaspedMinutes + " minutes";
+        long elapseMinutes = ChronoUnit.MINUTES.between(instant, Instant.now());
+        return String.format("%s minute(s) ago", elapseMinutes);
     }
 
     private String formatInHours(Instant instant){
-        long elapsedHours = ChronoUnit.HOURS.between(instant, Instant.now());
-        return elapsedHours + " hours";
+        long elapseHours = ChronoUnit.HOURS.between(instant, Instant.now());
+        return String.format("%s hour(s) ago", elapseHours);
     }
 
     private String formatInDate(Instant instant){
