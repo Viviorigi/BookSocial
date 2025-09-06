@@ -21,7 +21,7 @@ export const updateProfile = async (profileData) => {
 };
 
 export const uploadAvatar = async (formData) => {
-  return await httpClient.post(API.UPDATE_AVATAR, formData, {
+  return await httpClient.put(API.UPDATE_AVATAR, formData, {
     headers: {
       Authorization: `Bearer ${getToken()}`,
       "Content-Type": "multipart/form-data",

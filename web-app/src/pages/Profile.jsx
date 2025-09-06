@@ -111,6 +111,9 @@ export default function Profile() {
       return;
     }
 
+    console.log(file);
+    
+
     try {
       setUploading(true);
 
@@ -291,7 +294,7 @@ export default function Profile() {
                 mb: "20px",
               }}
             >
-              Welcome back to Devteria, {userDetails.username} !
+              Welcome back to Vivior App, {userDetails.username} !
             </Typography>
             <Box
               sx={{

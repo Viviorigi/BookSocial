@@ -8,12 +8,14 @@ import com.duong.profile.exception.AppException;
 import com.duong.profile.exception.ErrorCode;
 import com.duong.profile.mapper.UserProfileMapper;
 import com.duong.profile.repository.UserProfileRepository;
+import com.duong.profile.repository.http.FileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ import java.util.List;
 public class UserProfileService {
     UserProfileRepository userProfileRepository;
     UserProfileMapper userProfileMapper;
+    FileClient fileClient;
 
     public UserProfileResponse createProfile(ProfileCreationRequest request) {
         UserProfile userProfile = userProfileMapper.toUserProfile(request);
@@ -69,6 +72,20 @@ public class UserProfileService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userProfileMapper.update(profile, request);
+
+        return userProfileMapper.toUserProfileResponse(userProfileRepository.save(profile));
+    }
+
+    public UserProfileResponse updateAvatar(MultipartFile file) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        var profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Upload file - inwoke an api File Service
+        var response = fileClient.uploadMedia(file);
+        profile.setAvatar(response.getResult().getUrl());
 
         return userProfileMapper.toUserProfileResponse(userProfileRepository.save(profile));
     }
