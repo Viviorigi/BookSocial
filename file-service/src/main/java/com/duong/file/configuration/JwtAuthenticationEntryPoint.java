@@ -1,7 +1,7 @@
 package com.duong.file.configuration;
 
-import com.devteria.post.dto.ApiResponse;
-import com.devteria.post.exception.ErrorCode;
+import com.duong.file.dto.ApiResponse;
+import com.duong.file.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

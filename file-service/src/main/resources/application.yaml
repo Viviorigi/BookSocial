@@ -7,9 +7,5 @@ spring:
     name: file-service
   data:
     mongodb:
-      uri: mongodb://root:root@localhost:27017/file-service?authSource=admin
+      uri: mongodb://root:root@localhost:27018/file-service?authSource=admin
 
-app:
-  services:
-    profile:
-      url: http://localhost:8081/profile
