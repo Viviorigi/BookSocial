@@ -1,6 +1,7 @@
 package com.duong.profile.controller;
 
 import com.duong.profile.dto.ApiResponse;
+import com.duong.profile.dto.request.UpdateProfileRequest;
 import com.duong.profile.dto.response.UserProfileResponse;
 import com.duong.profile.service.UserProfileService;
 import lombok.AccessLevel;
@@ -37,6 +38,13 @@ public class UserProfileController {
     ApiResponse<UserProfileResponse> getMyProfile() {
         return ApiResponse.<UserProfileResponse>builder()
                 .result(userProfileService.getMyProfile())
+                .build();
+    }
+
+    @PutMapping("/users/my-profile")
+    ApiResponse<UserProfileResponse> updateMyProfile(@RequestBody UpdateProfileRequest request) {
+        return ApiResponse.<UserProfileResponse>builder()
+                .result(userProfileService.updateMyProfile(request))
                 .build();
     }
 }

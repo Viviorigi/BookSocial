@@ -10,3 +10,21 @@ export const getMyInfo = async () => {
       },
     });
 };
+
+export const updateProfile = async (profileData) => {
+  return await httpClient.put(API.UPDATE_PROFILE, profileData, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      "Content-Type": "application/json",
+    },
+  });
+};
+
+export const uploadAvatar = async (formData) => {
+  return await httpClient.post(API.UPDATE_AVATAR, formData, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

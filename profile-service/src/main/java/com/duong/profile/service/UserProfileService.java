@@ -1,6 +1,7 @@
 package com.duong.profile.service;
 
 import com.duong.profile.dto.request.ProfileCreationRequest;
+import com.duong.profile.dto.request.UpdateProfileRequest;
 import com.duong.profile.dto.response.UserProfileResponse;
 import com.duong.profile.entity.UserProfile;
 import com.duong.profile.exception.AppException;
@@ -58,5 +59,17 @@ public class UserProfileService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userProfileMapper.toUserProfileResponse(profile);
+    }
+
+    public UserProfileResponse updateMyProfile(UpdateProfileRequest request) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        var profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        userProfileMapper.update(profile, request);
+
+        return userProfileMapper.toUserProfileResponse(userProfileRepository.save(profile));
     }
 }
