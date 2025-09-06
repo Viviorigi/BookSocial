@@ -42,6 +42,14 @@ public class UserProfileService {
         return profiles.stream().map(userProfileMapper::toUserProfileResponse).toList();
     }
 
+    public UserProfileResponse getByUserId(String userId) {
+        UserProfile userProfile =
+                userProfileRepository.findByUserId(userId)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userProfileMapper.toUserProfileResponse(userProfile);
+    }
+
     public UserProfileResponse getMyProfile() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
