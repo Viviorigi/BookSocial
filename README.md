@@ -1,2 +1,2 @@
 # bookSocial
-The bookSocail project, a book social network
+The bookSocial project, a book social network
