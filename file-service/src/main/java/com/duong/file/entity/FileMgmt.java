@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collation = "file_mgmt")
+@Document(collection = "file_mgmt")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FileMgmt {
     @MongoId
