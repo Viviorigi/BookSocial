@@ -2,6 +2,7 @@ package com.duong.file.controller;
 
 
 import com.duong.file.dto.ApiResponse;
+import com.duong.file.dto.response.FileResponse;
 import com.duong.file.service.FileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class FileController {
     FileService fileService;
 
     @PostMapping("/media/upload")
-    ApiResponse<Object> uploadMedia(@RequestParam("file") MultipartFile file) throws IOException {
-        return ApiResponse.builder()
+    ApiResponse<FileResponse> uploadMedia(@RequestParam("file") MultipartFile file) throws IOException {
+        return ApiResponse.<FileResponse>builder()
                 .result(fileService.uploadFile(file))
                 .build();
     }
