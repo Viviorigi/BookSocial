@@ -110,12 +110,13 @@ function Scene({ children }) {
             width: { sm: `calc(100% - ${drawerWidth}px)` },
           }}
         >
-          <Toolbar />
+          <Toolbar /> {" "}
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              width: '100%'
+               display: "flex",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
             }}
           >
             {children}

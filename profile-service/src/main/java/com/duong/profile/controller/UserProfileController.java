@@ -1,6 +1,7 @@
 package com.duong.profile.controller;
 
 import com.duong.profile.dto.ApiResponse;
+import com.duong.profile.dto.request.SearchUserRequest;
 import com.duong.profile.dto.request.UpdateProfileRequest;
 import com.duong.profile.dto.response.UserProfileResponse;
 import com.duong.profile.service.UserProfileService;
@@ -53,6 +54,13 @@ public class UserProfileController {
     ApiResponse<UserProfileResponse> updateAvatar(@RequestParam("file") MultipartFile file) {
         return ApiResponse.<UserProfileResponse>builder()
                 .result(userProfileService.updateAvatar(file))
+                .build();
+    }
+
+    @PostMapping("/users/search")
+    ApiResponse<List<UserProfileResponse>> search(@RequestBody SearchUserRequest request) {
+        return ApiResponse.<List<UserProfileResponse>>builder()
+                .result(userProfileService.search(request))
                 .build();
     }
 }
