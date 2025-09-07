@@ -18,6 +18,7 @@ import java.util.List;
 @RequestMapping("conversations")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ConversationController {
+
     ConversationService conversationService;
 
     @PostMapping("/create")
