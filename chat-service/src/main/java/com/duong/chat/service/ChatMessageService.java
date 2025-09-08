@@ -1,5 +1,6 @@
 package com.duong.chat.service;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.duong.chat.exception.AppException;
 import com.duong.chat.dto.request.ChatMessageRequest;
 import com.duong.chat.dto.response.ChatMessageResponse;
@@ -30,7 +31,7 @@ public class ChatMessageService {
     ChatMessageRepository chatMessageRepository;
     ConversationRepository conversationRepository;
     ProfileClient profileClient;
-
+    SocketIOServer socketIOServer;
     ChatMessageMapper chatMessageMapper;
 
     public List<ChatMessageResponse> getMessages(String conversationId) {
@@ -80,6 +81,13 @@ public class ChatMessageService {
 
         // create chat message
         chatMessage = chatMessageRepository.save(chatMessage);
+
+        String message = chatMessage.getMessage();
+
+        //Publish socket event to clients
+        socketIOServer.getAllClients().forEach(client ->{
+            client.sendEvent("message", message);
+        });
 
         //convert to response
         return toChatMessageResponse(chatMessage);
