@@ -6,7 +6,9 @@ import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.duong.chat.dto.request.IntrospectRequest;
+import com.duong.chat.entity.WebSocketSession;
 import com.duong.chat.service.IdentityService;
+import com.duong.chat.service.WebSocketSessionService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.AccessLevel;
@@ -15,6 +17,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class SocketHandler {
     SocketIOServer server;
     IdentityService identityService;
+    WebSocketSessionService webSocketSessionService;
 
     @OnConnect
     public void clientConnected(SocketIOClient client) {
@@ -36,6 +41,14 @@ public class SocketHandler {
         // if token is invalid -> disconnect
         if(introspectResponse.isValid()){
             log.info("client connected: {} ", client.getSessionId());
+            //Persist webSocketSession
+            WebSocketSession webSocketSession = WebSocketSession.builder()
+                    .socketSessionId(client.getSessionId().toString())
+                    .userId(introspectResponse.getUserId())
+                    .createdAt(Instant.now())
+                    .build();
+            webSocketSession = webSocketSessionService.create(webSocketSession);
+            log.info("webSocket session created with id : {}", webSocketSession.getId());
         } else {
             log.error("Authentication fail: {} ", client.getSessionId());
             client.disconnect();
@@ -45,6 +58,7 @@ public class SocketHandler {
     @OnDisconnect
     public void clientDisconnected(SocketIOClient client) {
         log.info("client disconnected: {}", client.getSessionId());
+        webSocketSessionService.deleteSession(client.getSessionId().toString());
     }
 
     @PostConstruct

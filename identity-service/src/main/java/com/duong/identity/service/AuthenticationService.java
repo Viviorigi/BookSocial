@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -52,14 +53,19 @@ public class AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
         boolean isValid = true;
-
+        SignedJWT jwt = null ;
         try {
-            verifyToken(token);
+            jwt = verifyToken(token);
         } catch (AppException e) {
             isValid = false;
         }
 
-        return IntrospectResponse.builder().valid(isValid).build();
+        return IntrospectResponse.builder()
+                .userId(Objects.nonNull(jwt)
+                        ? jwt.getJWTClaimsSet().getSubject()
+                        : null)
+                .valid(isValid)
+                .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
