@@ -18,7 +18,13 @@ public enum ErrorCode {
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     INVALID_EMAIL(1009, "Invalid email address", HttpStatus.BAD_REQUEST),
     EMAIL_IS_REQUIRED(1010, "Email is required", HttpStatus.BAD_REQUEST),
-    ;
+
+    USER_NOT_FOUND(1011, "User not found with given email", HttpStatus.NOT_FOUND),
+    INVALID_TOKEN(1011, "Invalid reset token", HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRED(1012, "Reset token has expired", HttpStatus.BAD_REQUEST),
+    TOKEN_USED(1013, "Reset token already used", HttpStatus.BAD_REQUEST),
+    PASSWORD_SAME_AS_OLD(1014, "New password must be different from old password", HttpStatus.BAD_REQUEST),
+    PASSWORD_RESET_FAILED(1015, "Failed to reset password", HttpStatus.INTERNAL_SERVER_ERROR);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

@@ -19,11 +19,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-        "/users/registration", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
+        "/users/registration", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh","/forgot-password","/reset-password-api"
     };
     private static final String[] PUBLIC_ANY = {
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
-            "/actuator/health", "/error"
+            "/actuator/health", "/error","/reset-password-form","reset-password**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;

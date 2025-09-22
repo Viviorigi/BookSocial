@@ -41,7 +41,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/identity/auth/.*",
             "/identity/users/registration",
             "/notification/email/send",
-            "/file/media/download/.*"
+            "/file/media/download/.*",
+            "/identity/forgot-password",
+            "identity/reset-password-api"
     };
 
     @Value("${app.api-prefix}")
