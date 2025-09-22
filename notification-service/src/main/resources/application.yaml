@@ -18,6 +18,16 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+    tryItOutEnabled: true
+    filter: true
+
 notification:
   email:
     brevo-url: https://api.brevo.com

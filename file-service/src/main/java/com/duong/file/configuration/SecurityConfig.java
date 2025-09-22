@@ -20,6 +20,12 @@ public class SecurityConfig {
             "/media/download/**"
     };
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui.html", "/swagger-ui/**",
+            "/v3/api-docs/**", "/v3/api-docs.yaml",
+            "/actuator/health", "/error"
+    };
+
     private final CustomJwtDecoder customJwtDecoder;
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
@@ -28,8 +34,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
-                .permitAll()
+        httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 .anyRequest()
                 .authenticated());
 

@@ -21,6 +21,10 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
         "/users/registration", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
     };
+    private static final String[] PUBLIC_ANY = {
+            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
+            "/actuator/health", "/error"
+    };
 
     private final CustomJwtDecoder customJwtDecoder;
 
@@ -30,8 +34,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
+        httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(PUBLIC_ANY).permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest()
                 .authenticated());
 

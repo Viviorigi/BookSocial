@@ -16,6 +16,16 @@ spring:
       max-request-size: 5MB
       max-file-size: 5MB
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+    tryItOutEnabled: true
+    filter: true
+
 app:
   services:
     file: http://localhost:8084

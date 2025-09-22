@@ -10,6 +10,16 @@ spring:
       uri: mongodb://root:root@localhost:27018/chat-service?authSource=admin
       auto-index-creation: true
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+    tryItOutEnabled: true
+    filter: true
+
 app:
   services:
     profile:
