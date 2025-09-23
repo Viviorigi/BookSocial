@@ -2,13 +2,12 @@ package com.duong.profile.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -35,4 +34,9 @@ public class UserProfile {
     LocalDate dob;
     String city;
 
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
+    Set<UserProfile> following = new HashSet<>();
+
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
+    Set<UserProfile> followers = new HashSet<>();
 }

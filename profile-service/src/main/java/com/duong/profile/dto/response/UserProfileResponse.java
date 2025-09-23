@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -20,4 +21,10 @@ public class UserProfileResponse {
     String lastName;
     LocalDate dob;
     String city;
+
+    private int followersCount;
+    private int followingCount;
+
+    private List<SimpleUserDtoResponse> followers;
+    private List<SimpleUserDtoResponse> following;
 }
