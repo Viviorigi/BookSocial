@@ -1,9 +1,13 @@
 package com.duong.identity.controller;
 
 import java.util.List;
+import java.util.Map;
 
+import com.duong.identity.repository.UserRepository;
+import com.duong.identity.service.EmailVerificationService;
 import jakarta.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.duong.identity.dto.request.ApiResponse;
@@ -24,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserController {
     UserService userService;
+    private final UserRepository userRepo;
+    EmailVerificationService emailVerificationService;
 
     @PostMapping("/registration")
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
@@ -63,6 +69,25 @@ public class UserController {
     ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
+                .build();
+    }
+
+    @PostMapping("/verify-token")
+    public ApiResponse<?> verify(@RequestBody Map<String,String> body) {
+        emailVerificationService.verify(
+                body.get("token"),
+                userId -> userRepo.findById(userId).orElse(null),
+                userRepo::save
+        );
+        return ApiResponse.builder().result("Email Verify Successful").build();
+    }
+
+    @PostMapping("/resend-verification")
+    public ApiResponse<String> resendVerification(@RequestBody Map<String, String> body) {
+        userService.resendEmailVerification(body.get("email"));
+        return ApiResponse.<String>builder()
+                .message("Verification token sent")
+                .result("OK")
                 .build();
     }
 }

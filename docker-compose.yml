@@ -84,6 +84,34 @@ services:
       retries: 20
     networks: [booksocialnet]
 
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis
+    hostname: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "redispass"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redispass", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [booksocialnet]
+
+  # (tuỳ chọn) UI quản lý Redis
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+    networks: [ booksocialnet ]
+
 networks:
   booksocialnet:
 
@@ -92,3 +120,4 @@ volumes:
   mongo_data:
   neo4j_data:
   neo4j_logs:
+  redis_data:

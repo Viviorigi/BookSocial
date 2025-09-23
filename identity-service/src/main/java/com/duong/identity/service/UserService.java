@@ -12,6 +12,7 @@ import com.duong.identity.mapper.UserMapper;
 import com.duong.identity.repository.RoleRepository;
 import com.duong.identity.repository.UserRepository;
 import com.duong.identity.repository.httpclient.ProfileClient;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +43,7 @@ public class UserService {
     ProfileClient profileClient;
     ProfileMapper profileMapper;
     KafkaTemplate<String, Object> kafkaTemplate;
+    EmailVerificationService emailVerificationService;
 
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
@@ -75,6 +77,8 @@ public class UserService {
                 .build();
         // Public message to  kafka
         kafkaTemplate.send("notification-delivery", notificationEvent);
+
+        emailVerificationService.sendRawToken(user.getId(), user.getUsername(), user.getEmail());
 
         return userMapper.toUserResponse(user);
     }
@@ -117,4 +121,20 @@ public class UserService {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
+
+    @Transactional
+    public void resendEmailVerification(String email) {
+        // 1. Tìm user theo email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // 2. Nếu đã verify thì báo lỗi
+        if (user.isEmailVerified()) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_VERIFIED);
+        }
+
+        // 3. Gọi service gửi lại token (có cooldown Redis bên trong)
+        emailVerificationService.resendVerifyToken(user);
+    }
+
 }

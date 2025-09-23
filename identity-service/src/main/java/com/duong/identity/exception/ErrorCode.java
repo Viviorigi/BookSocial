@@ -24,7 +24,10 @@ public enum ErrorCode {
     TOKEN_EXPIRED(1012, "Reset token has expired", HttpStatus.BAD_REQUEST),
     TOKEN_USED(1013, "Reset token already used", HttpStatus.BAD_REQUEST),
     PASSWORD_SAME_AS_OLD(1014, "New password must be different from old password", HttpStatus.BAD_REQUEST),
-    PASSWORD_RESET_FAILED(1015, "Failed to reset password", HttpStatus.INTERNAL_SERVER_ERROR);
+    PASSWORD_RESET_FAILED(1015, "Failed to reset password", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMAIL_ALREADY_VERIFIED(1016, "Email is already verified", HttpStatus.BAD_REQUEST),
+    TOO_MANY_REQUESTS(1017, "Too many requests please try again 1 min ", HttpStatus.BAD_REQUEST),
+    ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

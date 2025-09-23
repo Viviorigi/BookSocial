@@ -31,4 +31,4 @@ springdoc:
 notification:
   email:
     brevo-url: https://api.brevo.com
-    brevo-apikey: <key>
+    brevo-apikey: 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
