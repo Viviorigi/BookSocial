@@ -17,6 +17,8 @@ public interface PostRepository extends MongoRepository<Post, String>, PostRepos
     @Query("{ 'userId': { $in: ?0 }, 'deleted': { $ne: true } }")
     Page<Post> findActiveByUserIdIn(Collection<String> userIds, Pageable pageable);
 
-    Optional<Post> findByIdAndDeletedFalse(String id);
+    @Query("{ 'content': { $regex: ?0, $options: 'i' }, 'deleted': { $ne: true } }")
+    Page<Post> searchByContent(String keyword, Pageable pageable);
+
 
 }

@@ -95,5 +95,16 @@ public class PostController {
                 .build();
     }
 
+    @GetMapping("/search")
+    public ApiResponse<PageResponse<PostResponse>> search(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ApiResponse.<PageResponse<PostResponse>>builder()
+                .result(postService.searchPosts(q, page, size))
+                .build();
+    }
+
 
 }

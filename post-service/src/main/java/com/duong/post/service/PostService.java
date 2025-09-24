@@ -44,7 +44,9 @@ public class PostService {
     PostMapper postMapper;
     DateTimeFormatter dateTimeFormatter;
     ProfileClient profileClient;
-    private final CommentRepository commentRepository;
+    CommentRepository commentRepository;
+    ProfileCacheService profileCacheService;
+    FollowingCacheService followingCacheService;
 
     public PostResponse createPost(PostRequest postRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -89,7 +91,7 @@ public class PostService {
 
         UserProfileResponse userProfile = null;
         try {
-            userProfile = profileClient.getProfile(userId).getResult();
+            userProfile = profileCacheService.getProfile(userId);
         } catch (Exception e) {
             log.error("Error while getting user profile", e);
         }
@@ -158,17 +160,7 @@ public class PostService {
     public PageResponse<PostResponse> getFeed(int page, int size) {
         String me = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        List<String> followingIds = List.of();
-        try {
-            var res = profileClient.getFollowings(me);
-            followingIds = res != null && res.getResult() != null
-                    ? res.getResult().stream()
-                    .map(UserFollowingResponse::getUserId)  // map sang id
-                    .toList()
-                    : List.of();
-        } catch (Exception e) {
-            log.warn("Get followings failed for {}", me, e);
-        }
+        List<String> followingIds = followingCacheService.getFollowingIds(me);
 
         // scope = chính mình + những người mình follow
         var scope = new java.util.HashSet<String>();
@@ -193,6 +185,36 @@ public class PostService {
             dto.setLikeCount(p.getLikeCount());                 // lấy từ Post
             dto.setLikedByMe(postLikeRepository
                     .existsByPostIdAndUserId(p.getId(), me));
+            dto.setCommentCount(p.getCommentCount());
+            return dto;
+        }).toList();
+
+        return PageResponse.<PostResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(data)
+                .build();
+    }
+
+    public PageResponse<PostResponse> searchPosts(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
+        var pageData = postRepository.searchByContent(keyword, pageable);
+
+        List<PostResponse> data = pageData.getContent().stream().map(p -> {
+            String username = null;
+            try {
+                var profile = profileClient.getProfile(p.getUserId()).getResult();
+                username = profile != null ? profile.getUsername() : null;
+            } catch (Exception ignored) {}
+
+            PostResponse dto = postMapper.toPostResponse(p);
+            dto.setCreated(dateTimeFormatter.format(p.getCreatedDate()));
+            dto.setUsername(username);
+            dto.setLikeCount(p.getLikeCount());
+            dto.setLikedByMe(postLikeRepository.existsByPostIdAndUserId(p.getId(),
+                    SecurityContextHolder.getContext().getAuthentication().getName()));
             dto.setCommentCount(p.getCommentCount());
             return dto;
         }).toList();
@@ -256,8 +278,5 @@ public class PostService {
 //            }
 //        }
 //    }
-
-
-
 
 }
