@@ -3,6 +3,7 @@ package com.duong.profile.controller;
 import com.duong.profile.dto.ApiResponse;
 import com.duong.profile.dto.request.SearchUserRequest;
 import com.duong.profile.dto.request.UpdateProfileRequest;
+import com.duong.profile.dto.response.FollowSuggestionResponse;
 import com.duong.profile.dto.response.SimpleUserDtoResponse;
 import com.duong.profile.dto.response.UserProfileResponse;
 import com.duong.profile.service.UserProfileService;
@@ -97,6 +98,22 @@ public class UserProfileController {
             @RequestParam(defaultValue = "20") int size) {
         return ApiResponse.<List<SimpleUserDtoResponse>>builder()
                 .result(userProfileService.getFollowers(userId, page, size))
+                .build();
+    }
+
+    @GetMapping("/users/suggestions")
+    public ApiResponse<List<FollowSuggestionResponse>> suggestions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.<List<FollowSuggestionResponse>>builder()
+                .result(userProfileService.suggestFollows(page, size))
+                .build();
+    }
+
+    @GetMapping("/users/suggestions/count")
+    public ApiResponse<Long> suggestionCount() {
+        return ApiResponse.<Long>builder()
+                .result(userProfileService.countFollowSuggestions())
                 .build();
     }
 }

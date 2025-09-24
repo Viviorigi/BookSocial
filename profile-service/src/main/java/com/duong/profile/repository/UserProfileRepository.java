@@ -1,6 +1,7 @@
 package com.duong.profile.repository;
 
 import com.duong.profile.entity.UserProfile;
+import com.duong.profile.repository.projection.SuggestedUserRow;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
@@ -63,4 +64,56 @@ public interface UserProfileRepository extends Neo4jRepository<UserProfile, Stri
       RETURN count(u)
     """)
     long countFollowers(String userId);
+
+    // Mutual friends = me -> A -> cand
+    @Query("""
+      MATCH (me:user_profile {userId:$me})-[:FOLLOWS]->(:user_profile)-[:FOLLOWS]->(cand:user_profile)
+      WHERE cand.userId <> $me
+        AND NOT (me)-[:FOLLOWS]->(cand)
+      WITH cand, count(*) AS mutuals
+      // chỉ trả khi có ít nhất 1 mutual
+      WHERE mutuals >= 1
+      RETURN cand.userId AS userId,
+             cand.username AS username,
+             COALESCE(cand.avatar,'') AS avatar,
+             mutuals AS mutuals
+      ORDER BY mutuals DESC, username ASC
+      SKIP $skip LIMIT $limit
+    """)
+    List<SuggestedUserRow> suggestByMutuals(String me, long skip, long limit);
+
+    @Query("""
+      MATCH (me:user_profile {userId:$me})-[:FOLLOWS]->(:user_profile)-[:FOLLOWS]->(cand:user_profile)
+      WHERE cand.userId <> $me
+        AND NOT (me)-[:FOLLOWS]->(cand)
+      RETURN count(DISTINCT cand)
+    """)
+    long countMutualSuggestions(String me);
+
+    // Fallback: người "phổ biến" theo số followers (khi mutuals không có)
+    @Query("""
+      MATCH (cand:user_profile)
+      WHERE cand.userId <> $me
+        AND NOT EXISTS { MATCH (me:user_profile {userId:$me})-[:FOLLOWS]->(cand) }
+      OPTIONAL MATCH (f:user_profile)-[:FOLLOWS]->(cand)
+      WITH cand, count(f) AS followers
+      WHERE followers >= 1
+      RETURN cand.userId AS userId,
+             cand.username AS username,
+             COALESCE(cand.avatar,'') AS avatar,
+             followers AS mutuals
+      ORDER BY followers DESC, username ASC
+      SKIP $skip LIMIT $limit
+    """)
+    List<SuggestedUserRow> suggestPopular(String me, long skip, long limit);
+
+    @Query("""
+      MATCH (cand:user_profile)
+      WHERE cand.userId <> $me
+        AND NOT EXISTS { MATCH (me:user_profile {userId:$me})-[:FOLLOWS]->(cand) }
+      OPTIONAL MATCH (f:user_profile)-[:FOLLOWS]->(cand)
+      RETURN count(DISTINCT cand)
+    """)
+    long countPopularSuggestions(String me);
+
 }

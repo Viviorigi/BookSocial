@@ -3,6 +3,7 @@ package com.duong.profile.service;
 import com.duong.profile.dto.request.ProfileCreationRequest;
 import com.duong.profile.dto.request.SearchUserRequest;
 import com.duong.profile.dto.request.UpdateProfileRequest;
+import com.duong.profile.dto.response.FollowSuggestionResponse;
 import com.duong.profile.dto.response.SimpleUserDtoResponse;
 import com.duong.profile.dto.response.UserProfileResponse;
 import com.duong.profile.entity.UserProfile;
@@ -11,6 +12,7 @@ import com.duong.profile.exception.ErrorCode;
 import com.duong.profile.mapper.UserProfileMapper;
 import com.duong.profile.repository.UserProfileRepository;
 import com.duong.profile.repository.http.FileClient;
+import com.duong.profile.repository.projection.SuggestedUserRow;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.AccessLevel;
@@ -146,4 +148,38 @@ public class UserProfileService {
 
     public long countFollowing(String userId) { return userProfileRepository.countFollowing(userId); }
     public long countFollowers(String userId) { return userProfileRepository.countFollowers(userId); }
+
+
+    public List<FollowSuggestionResponse> suggestFollows(int page, int size) {
+        final String me = currentUserId();
+        final int pg = Math.max(page, 0);
+        final int sz = Math.max(size, 1);
+        final long skip = (long) pg * sz;
+
+        // 1) ưu tiên mutual
+        List<SuggestedUserRow> rows = userProfileRepository.suggestByMutuals(me, skip, sz);
+
+        // 2) fallback popular nếu mutual rỗng
+        if (rows.isEmpty()) {
+            rows = userProfileRepository.suggestPopular(me, skip, sz);
+        }
+
+        return rows.stream()
+                .map(r -> FollowSuggestionResponse.builder()
+                        .user(SimpleUserDtoResponse.builder()
+                                .userId(r.userId())
+                                .username(r.username())   // có thể null với dữ liệu cũ, không sao
+                                .avatar(r.avatar())
+                                .build())
+                        .mutualCount(r.mutuals() == null ? 0 : r.mutuals().intValue())
+                        .build())
+                .toList();
+    }
+
+    public long countFollowSuggestions() {
+        final String me = currentUserId();
+        long mutual = userProfileRepository.countMutualSuggestions(me);
+        if (mutual > 0) return mutual;
+        return userProfileRepository.countPopularSuggestions(me);
+    }
 }
