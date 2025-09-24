@@ -27,6 +27,12 @@ public class PostController {
                 .build();
     }
 
+    @DeleteMapping("/{postId}")
+    public ApiResponse<String> delete(@PathVariable String postId) {
+        postService.deleteMyPost(postId);
+        return ApiResponse.<String>builder().result("Post deleted").build();
+    }
+
     @GetMapping("/my-posts")
     ApiResponse<PageResponse<PostResponse>> getMyPosts(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -56,4 +62,38 @@ public class PostController {
                 .result(postService.getFeed(page, size))
                 .build();
     }
+
+    @PostMapping("/{postId}/like")
+    public ApiResponse<String> like(@PathVariable String postId) {
+        postService.like(postId);
+        return ApiResponse.<String>builder()
+                .result("Liked successfully")
+                .build();
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ApiResponse<String> unlike(@PathVariable String postId) {
+        postService.unlike(postId);
+        return ApiResponse.<String>builder()
+                .result("Unliked successfully")
+                .build();
+    }
+
+    @GetMapping("/{postId}/likes/count")
+    public ApiResponse<?> likeCount(@PathVariable String postId) {
+        long count = postService.getLikeCount(postId);
+        return ApiResponse.builder()
+                .result( count)
+                .build();
+    }
+
+    @GetMapping("/{postId}/likes/me")
+    public ApiResponse<String> likedByMe(@PathVariable String postId) {
+        boolean liked = postService.likedByMe(postId);
+        return ApiResponse.<String>builder()
+                .result(liked ? "You already liked this post" : "You have not liked this post")
+                .build();
+    }
+
+
 }

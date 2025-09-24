@@ -22,4 +22,9 @@ public class PostResponse {
     String created;
     Instant createdDate;
     Instant modifiedDate;
+
+
+    long likeCount;
+    boolean likedByMe;
+    long commentCount;
 }
