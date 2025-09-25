@@ -1,7 +1,7 @@
 package com.duong.post.controller;
 
 import com.duong.post.dto.ApiResponse;
-import com.duong.post.dto.PageResponse;
+import com.duong.post.dto.response.PageResponse;
 import com.duong.post.dto.request.CommentRequest;
 import com.duong.post.dto.response.CommentResponse;
 import com.duong.post.service.CommentService;

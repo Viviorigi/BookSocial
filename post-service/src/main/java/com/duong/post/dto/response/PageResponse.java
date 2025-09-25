@@ -1,4 +1,4 @@
-package com.duong.post.dto;
+package com.duong.post.dto.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,11 +1,14 @@
 package com.duong.post.service;
 
-import com.duong.post.dto.PageResponse;
+import com.duong.event.dto.NotificationEvent;
+import com.duong.post.Helper.AfterCommit;
+import com.duong.post.dto.response.PageResponse;
 import com.duong.post.dto.request.CommentRequest;
 import com.duong.post.dto.response.CommentResponse;
 import com.duong.post.entity.Comment;
 import com.duong.post.exception.AppException;
 import com.duong.post.exception.ErrorCode;
+import com.duong.post.messaging.NotificationProducer;
 import com.duong.post.repository.CommentRepository;
 import com.duong.post.repository.PostRepository;
 import com.duong.post.repository.http.ProfileClient;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -30,13 +34,15 @@ public class CommentService {
     private final PostRepository postRepository;
     private final DateTimeFormatter dateTimeFormatter;
     private final ProfileClient profileClient;
+    private final NotificationProducer notificationProducer;
 
     public CommentResponse add(String postId, CommentRequest req) {
         String me = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // verify post tồn tại
-        postRepository.findById(postId)
+        // verify post tồn tại & lấy chủ post
+        var post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
+        final String postOwnerId = post.getUserId();
 
         Comment c = Comment.builder()
                 .postId(postId)
@@ -47,6 +53,27 @@ public class CommentService {
                 .build();
         c = commentRepository.save(c);
         postRepository.incrementCommentCount(postId, 1);
+
+        // Sau commit mới gửi notif (và không tự gửi cho mình)
+        if (postOwnerId != null && !postOwnerId.equals(me)) {
+            final String actorId = me;
+            final String commentId = c.getId();
+
+            AfterCommit.run(() -> notificationProducer.send(NotificationEvent.builder()
+                    .channel("IN_APP")
+                    .recipient(postOwnerId)
+                    .templateCode("COMMENT")
+                    .param(Map.of(
+                            "postId", postId,
+                            "commentId", commentId,
+                            "actorId", actorId
+                    ))
+                    .subject("Có bình luận mới")
+                    .body("Người dùng " + actorId + " đã bình luận bài viết của bạn")
+                    .build()));
+        }
+
+
 
         String username = null;
         try {

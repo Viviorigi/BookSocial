@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -38,15 +39,23 @@ public class FileService {
     FileMgmtMapper fileMgmtMapper;
 
     public FileResponse uploadFile(MultipartFile file) throws IOException {
-        // Store file
+        if (file == null || file.isEmpty()) {
+            throw new AppException(ErrorCode.FILE_EMPTY);
+        }
+        if (file.getSize() > 5 * 1024 * 1024) { // >5MB
+            throw new AppException(ErrorCode.FILE_TOO_LARGE);
+        }
+        List<String> allowed = List.of("image/png", "image/jpeg", "image/webp");
+        if (!allowed.contains(file.getContentType())) {
+            throw new AppException(ErrorCode.FILE_UNSUPPORTED_TYPE);
+        }
+
         var fileInfo = fileRepository.store(file);
 
-        // Create file management info
         var fileMgmt = fileMgmtMapper.toFileMgmt(fileInfo);
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        fileMgmt.setOwnerId(userId);
-
-        fileMgmt = fileMgmtRepository.save(fileMgmt);
+        fileMgmt.setId(fileInfo.getName()); // ID = tên file
+        fileMgmt.setOwnerId(SecurityContextHolder.getContext().getAuthentication().getName());
+        fileMgmtRepository.save(fileMgmt);
 
         return FileResponse.builder()
                 .originalFilename(file.getOriginalFilename())

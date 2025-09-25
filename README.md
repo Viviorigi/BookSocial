@@ -1,2 +1,2 @@
-# bookSocial
-The bookSocial project, a book social network
+# Social
+The Social-MicroServices project, a book social network

@@ -33,15 +33,13 @@ public class FileController {
                 .build();
     }
 
-    @GetMapping(
-            value = "/media/download/{fileName}",
-            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE
-    )
+    @GetMapping("/media/download/{fileName}")
     ResponseEntity<Resource> downloadMedia(@PathVariable String fileName) throws IOException {
         var fileData = fileService.download(fileName);
 
-        return ResponseEntity.<Resource>ok()
-                .header(HttpHeaders.CONTENT_TYPE,fileData.contentType())
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, fileData.contentType())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .body(fileData.resource());
     }
 }

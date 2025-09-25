@@ -1,18 +1,17 @@
 package com.duong.post.service;
 
-import com.duong.post.dto.PageResponse;
-import com.duong.post.dto.request.CommentRequest;
+import com.duong.event.dto.NotificationEvent;
+import com.duong.post.Helper.AfterCommit;
+import com.duong.post.dto.response.PageResponse;
 import com.duong.post.dto.request.PostRequest;
-import com.duong.post.dto.response.CommentResponse;
 import com.duong.post.dto.response.PostResponse;
-import com.duong.post.dto.response.UserFollowingResponse;
 import com.duong.post.dto.response.UserProfileResponse;
-import com.duong.post.entity.Comment;
 import com.duong.post.entity.Post;
 import com.duong.post.entity.PostLike;
 import com.duong.post.exception.AppException;
 import com.duong.post.exception.ErrorCode;
 import com.duong.post.mapper.PostMapper;
+import com.duong.post.messaging.NotificationProducer;
 import com.duong.post.repository.CommentRepository;
 import com.duong.post.repository.PostLikeRepository;
 import com.duong.post.repository.PostRepository;
@@ -32,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -47,6 +47,7 @@ public class PostService {
     CommentRepository commentRepository;
     ProfileCacheService profileCacheService;
     FollowingCacheService followingCacheService;
+    NotificationProducer notificationProducer;
 
     public PostResponse createPost(PostRequest postRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -232,17 +233,41 @@ public class PostService {
     public void like(String postId) {
         String me = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        // 1) Verify post tồn tại + lấy chủ post
+        var post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
+        final String postOwnerId = post.getUserId();
+
+        // 2) Không cho tự like (có thể return hoặc throw)
+        if (postOwnerId != null && postOwnerId.equals(me)) {
+            // return; // hoặc throw new AppException(ErrorCode.BAD_REQUEST);
+            return;
+        }
+
+        // 3) Tránh double-like
         if (postLikeRepository.existsByPostIdAndUserId(postId, me)) return;
 
         try {
+            // 4) Ghi like + tăng đếm
             postLikeRepository.save(PostLike.builder()
                     .postId(postId)
                     .userId(me)
                     .createdAt(Instant.now())
                     .build());
             postRepository.incrementLikeCount(postId, 1);
-        } catch (DuplicateKeyException e) {
 
+            // 5) Gửi notif (sau commit nếu có tx; nếu không có thì gửi ngay)
+            final String actorId = me;
+            AfterCommit.run(() -> notificationProducer.send(NotificationEvent.builder()
+                    .channel("IN_APP")
+                    .recipient(postOwnerId)
+                    .templateCode("LIKE")
+                    .param(Map.of("postId", postId, "actorId", actorId))
+                    .subject("Ai đó đã thích bài viết của bạn")
+                    .body("Người dùng " + actorId + " đã thích bài viết của bạn")
+                    .build()));
+
+        } catch (DuplicateKeyException e) {
             log.debug("Duplicate like postId={}, userId={}", postId, me);
         }
     }
