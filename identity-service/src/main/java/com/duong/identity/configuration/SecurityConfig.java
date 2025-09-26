@@ -26,7 +26,7 @@ public class SecurityConfig {
     };
     private static final String[] PUBLIC_ANY = {
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
-            "/actuator/health", "/error","/reset-password-form","reset-password**"
+            "/actuator/health", "/error","/reset-password-form","reset-password**","/auth/ping"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
