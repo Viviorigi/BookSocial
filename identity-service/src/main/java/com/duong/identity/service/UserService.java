@@ -72,7 +72,7 @@ public class UserService {
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .channel("EMAIL")
                 .recipient(request.getEmail())
-                .subject("Welcome to booksocial")
+                .subject("Welcome to Social-Networking")
                 .body("Hello, "+    request.getUsername())
                 .build();
         // Public message to  kafka
