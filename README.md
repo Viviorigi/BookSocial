@@ -1,2 +1,2 @@
 # Social
-The Social-MicroServices project, a book social network
+The Social-MicroServices project, a social network
